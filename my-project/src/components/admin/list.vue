@@ -22,7 +22,7 @@
       </el-form-item>
     </el-form>
     <h2>大文件上传</h2>
-    <input type="file" id="file" @click="handleUpload" />
+    <input type="file" id="file" @change="handleFileChange" />
     <el-button @click="handleUpload">上传</el-button>
 
     <el-table :data="tableData" stripe style="width: 100%">
@@ -55,6 +55,9 @@
 </template>
 
 <script>
+  import upload from "@/api/upload"
+  import merge from "@/api/merge"
+  const LENGTH =10;
   export default {
     data() {
       return {
@@ -73,7 +76,8 @@
           status: '',
         },
         container:{
-          file:null
+          file:null,
+          data:[]
         }
       };
     },
@@ -84,17 +88,49 @@
       yulanItem(id) {
         this.$router.push({ path: "/", query: id });
       },
-      handleUpload(){
-
-      },
       handleFileChange(e) {
         const [file] = e.target.files;
         if (!file) return;
         Object.assign(this.$data, this.$options.data());
         this.container.file = file;
+        
+      },
+      createFileChunk(file,length=LENGTH){
+        // 生成文件切片
+        const fileChunkList = [];
+        const chunkSize = Math.ceil(file.size / length);
+        let cur = 0;
+        while(cur<file.size){
+          fileChunkList.push({file:file.slice(cur,cur+chunkSize)})
+          cur += chunkSize;
+        }
+        return fileChunkList;
+      },
+      //上传切片
+      async uploadChunks(){
+        const requestList = this.container.data.map(({chunk,hash})=>{
+          const formData = new FormData();
+          formData.append("chunk",chunk);
+          formData.append("hash",hash);
+          formData.append("filename",this.container.file.name);
+          return {formData}
+        }).map(async ({formData})=>{
+          upload(formData)
+        })
+        await Promise.all(requestList) //并发切片
+        await this.mergeRequest();
+      },
+      async mergeRequest(){
+        await merge(this.container.data)
       },
       async handleUpload(){
-
+        if(!this.container.file) return;
+        const fileChunkList = this.createFileChunk(this.container.file);
+        this.container.data = fileChunkList.map(({file},index)=>({
+          chunk:file,
+          hash:this.container.file.name + "-" + index //文件名+数组下标
+        }))
+        await this.uploadChunks()
       }
     },
     filters: {

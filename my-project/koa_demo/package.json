@@ -23,12 +23,14 @@
     "koa-socket": "^4.4.0",
     "koa-static": "^5.0.0",
     "koa-views": "^6.2.0",
+    "multiparty": "^4.2.2",
     "mysql2": "^2.2.5",
     "pug": "^2.0.3",
     "sequelize": "^6.6.2",
     "ws": "^7.4.4"
   },
   "devDependencies": {
+    "fs-extra": "^10.0.0",
     "nodemon": "^1.19.1"
   }
 }

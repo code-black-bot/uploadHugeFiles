@@ -4,7 +4,7 @@ router.prefix('/list')
 
 router.get('/',async (ctx,next)=>{
     console.log(ctx.query)
-    ctx.body = "欢迎臭猫"+ctx.query;
+    ctx.body = "欢迎"+ctx.query;
 })
 
 module.exports = router;

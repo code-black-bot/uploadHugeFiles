@@ -9,6 +9,7 @@ const logger = require('koa-logger')
 const index = require('./routes/index')
 const users = require('./routes/users')
 const list = require('./routes/list')
+const upload = require('./routes/upload')
 const jsonwebtoken = require('jsonwebtoken');
 const koajwt = require('koa-jwt');
 global.SECRET = 'shared-secret'; // demo，可更换
@@ -26,47 +27,32 @@ global.SECRET = 'shared-secret'; // demo，可更换
 // );
 
 // 跨域问题 for test
-// app.use(async (ctx, next)=> {
-//   ctx.set('Access-Control-Allow-Origin', 'http://black.4399.com');
-//   ctx.set('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Accept, X-Requested-With');
-//   ctx.set('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE');
+app.use(async (ctx, next)=> {
+  ctx.set('Access-Control-Allow-Origin', 'http://black.4399.com');
+  ctx.set('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Accept, X-Requested-With');
+  ctx.set('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE');
   
-//   if (ctx.method == 'OPTIONS') {
-//     ctx.body = 200; 
-//   } else {
-//     await next();
-//   }
-// });
+  if (ctx.method == 'OPTIONS') {
+    ctx.body = 200; 
+  } else {
+    await next();
+  }
+});
 
 // 中间件对token进行验证
-// app.use(async (ctx, next) => {
-//   return next().catch((err) => {
-//       if (err.status === 401) {
-//           ctx.status = 401;
-//           ctx.body = {
-//               code: 401,
-//               msg: err.message
-//           }
-//       } else {
-//           throw err;
-//       }
-//   })
-// });
-
-// 中间件对token进行验证
-// app.use(async (ctx, next) => {
-//   return next().catch((err) => {
-//       if (err.status === 401) {
-//           ctx.status = 401;
-//           ctx.body = {
-//               code: 401,
-//               msg: err.message
-//           }
-//       } else {
-//           throw err;
-//       }
-//   })
-// });
+app.use(async (ctx, next) => {
+  return next().catch((err) => {
+      if (err.status === 401) {
+          ctx.status = 401;
+          ctx.body = {
+              code: 401,
+              msg: err.message
+          }
+      } else {
+          throw err;
+      }
+  })
+});
 
 app.use(jwt({ secret: global.SECRET, passthrough: true }).unless({
     // 登录，注册接口不需要验证
@@ -101,6 +87,7 @@ app.use(async (ctx, next) => {
 app.use(index.routes(), index.allowedMethods())
 app.use(users.routes(), users.allowedMethods())
 app.use(list.routes(), list.allowedMethods())
+app.use(upload.routes(), upload.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {

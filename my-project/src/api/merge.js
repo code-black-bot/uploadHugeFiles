@@ -1,8 +1,8 @@
 import service from './http';
 
-export default function upload(data){
+export default function login(data){
     return service({
-        url:'/upload',
+        url:'/merge',
         params:data
     })
-} 
+}
