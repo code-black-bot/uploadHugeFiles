@@ -28,7 +28,7 @@ global.SECRET = 'shared-secret'; // demo，可更换
 
 // 跨域问题 for test
 app.use(async (ctx, next)=> {
-  ctx.set('Access-Control-Allow-Origin', 'http://black.4399.com');
+  ctx.set('Access-Control-Allow-Origin', 'http://black.abc.com');
   ctx.set('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Accept, X-Requested-With');
   ctx.set('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE');
   
